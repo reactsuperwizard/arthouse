@@ -126,7 +126,7 @@
 
 <script>
   $ = jQuery.noConflict();
-  var mergedImage;
+  var mergedImage = '';
 
   // file upload preview function
   function previewFile(){
@@ -197,11 +197,20 @@
           context.drawImage(imagePicture, 0, artHeight / 2 + i, artWidth, 2, 0, artHeight / 2 + i, artWidth, 2);
         }
 
-        mergedImage = canvas.toDataURL('image/png');
+        mergedImage = canvas.toDataURL('image/jpeg', 0.5);
         $('#merged-image').attr('src', mergedImage);
 
       }
     };
+  }
+
+  function downloadURI(uri) {
+    var a = document.createElement('A');
+    a.href = uri;
+    a.download = uri.substr(uri.lastIndexOf('/') + 1);
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
   }
 
   // ajax upload merged image
@@ -212,10 +221,14 @@
       data: {
         action: 'rsm_save_image',
         imgBase64: mergedImage
+      },
+      success: function(result) {
+        if (result.status == 'success' ) {
+          downloadURI(result.data);
+        } else {
+          // error
+        }
       }
-    }).done(function(o) {
-      console.log(o);
-      console.log('saved'); 
     });
   }
 
